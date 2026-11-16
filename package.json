@@ -1,0 +1,38 @@
+{
+  "name": "solidaridad-emoticon",
+  "version": "1.1.0",
+  "description": "Familia de emoticones «Solidaridad» (apoyo y solidaridad): 5 SVG monocromos, PNG 16–512 px en 4 tintas y sticker animado.",
+  "author": "osarevalo",
+  "private": true,
+  "license": "(MIT AND CC-BY-4.0)",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/osarevalo/solidaridad-emoticon.git"
+  },
+  "homepage": "https://github.com/osarevalo/solidaridad-emoticon#readme",
+  "files": [
+    "src/",
+    "dist/",
+    "preview/",
+    "docs/",
+    "scripts/",
+    "README.md",
+    "DOCUMENTO-MAESTRO.md",
+    "CHANGELOG.md",
+    "LICENCIA.md",
+    "LICENSE",
+    "LICENSE-ARTWORK",
+    "ATRIBUCION.md",
+    "Makefile"
+  ],
+  "keywords": [
+    "emoticon",
+    "emoji",
+    "sticker",
+    "solidaridad",
+    "apoyo",
+    "svg",
+    "icon",
+    "monochrome"
+  ]
+}
