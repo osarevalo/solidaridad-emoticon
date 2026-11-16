@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none" role="img" aria-label="Me solidarizo con vos">
+  <g stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M4.8 25.5 L6.04 17.5 C7.07 10.83 17.07 10.83 16 17.5 L13.6 25.5"/>
+    <circle cx="11.8" cy="8.8" r="2.6" fill="currentColor" stroke-width="1.2"/>
+    <path d="M27.2 25.5 L25.96 17.5 C24.93 10.83 14.93 10.83 16 17.5 L18.4 25.5"/>
+    <circle cx="20.2" cy="8.8" r="2.6" fill="currentColor" stroke-width="1.2"/>
+  </g>
+</svg>
