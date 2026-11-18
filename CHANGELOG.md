@@ -1,5 +1,34 @@
 # Changelog
 
+## v1.3.0 — 2026-11-18 · serie «Corazón»
+
+Agrega una tercera serie: **la serie original con un corazón entre las dos
+figuras**. Mantiene la base (cabezas que no se tocan, hombros que sí) y la
+misma estructura A / B / «me sumo» / «misma causa» / sticker. El corazón se
+lee como afecto o pareja además de apoyo, por eso queda como serie aparte y no
+sustituye a «Hombro con hombro».
+
+### Añadido
+
+- `src/corazon.svg`, `src/corazon-fill.svg`, `src/corazon-me-sumo.svg`,
+  `src/corazon-causa.svg` y `src/corazon-sticker.svg`.
+- **92 PNG nuevos** de familia (5 glifos: A 7 tamaños, B 16/20, me sumo 7,
+  misma causa 7) + **12 PNG de sticker** (4 tintas × 3 tamaños) + WebP
+  animado y GIF del sticker del corazón.
+- Hoja `preview/contact-sheet-corazon.png` y sección en `preview/preview.html`.
+- Verificación ampliada a **547 comprobaciones**: base, corazón centrado,
+  animación de aparición, exportación y stickers.
+
+### Técnica
+
+El corazón va centrado en (16, 11.4) en A y (16, 12.2) en B, con un path de
+3.1 × 3.1 u. En el sticker aparece a los 0.35 s con escala 0 → 1.2 → 1 y
+opacidad 0 → 1. No usa máscaras ni un segundo color.
+
+### Sin cambios
+
+- Series original y «Abrazo», licencias, sticker original y política de tamaños.
+
 ## v1.2.0 — 2026-11-18 · serie alternativa «Abrazo»
 
 Suma una segunda lectura del mismo vínculo: la figura izquierda pasa el brazo

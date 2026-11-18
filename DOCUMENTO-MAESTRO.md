@@ -1,8 +1,8 @@
 # Emoticón «Solidaridad» — documento maestro de diseño
 
 > **Nombre:** Solidaridad · «Me solidarizo con vos» · «Hombro con hombro»
-> **Estado:** diseño aprobado y **terminado** · paquete de producción v1.2.0
-> **Versión del documento:** 1.2 · 2026-11-18
+> **Estado:** diseño aprobado y **terminado** · paquete de producción v1.3.0
+> **Versión del documento:** 1.3 · 2026-11-18
 > **Formato maestro:** SVG · `viewBox="0 0 32 32"`
 > **Uso:** documento único y autocontenido. Contiene brief, brainstorming,
 > decisión, correcciones de ejecución, geometría verificada, código fuente,
@@ -16,10 +16,10 @@ diseño a SVG renderizado se detectaron cuatro defectos de ejecución que el
 borrador no podía ver (cabezas en anillo, nudo central, «goteo» en la base y
 cifras de separación incorrectas). Están corregidos, documentados en el
 [CHANGELOG](CHANGELOG.md) y comprobados por `scripts/verify_geometry.py`
-(364 comprobaciones, 0 fallas). La versión 1.2 agrega la **serie alternativa
-«Abrazo»** (§15): cuatro glifos donde la figura izquierda pasa el brazo por
-encima del hombro de la derecha, con máscara knockout para que el brazo se lea
-sin un segundo color.
+(547 comprobaciones, 0 fallas). La versión 1.2 agrega la **serie alternativa
+«Abrazo»** (§15) y la 1.3 la serie **«Corazón»** (§16): la serie original con un
+corazón entre las dos figuras. Ambas son series adicionales; la original no
+cambia.
 
 ---
 
@@ -40,6 +40,7 @@ sin un segundo color.
 13. [Próximos pasos](#13--próximos-pasos)
 14. [Changelog](#14--changelog)
 15. [Serie alternativa «Abrazo»](#15--serie-alternativa-abrazo)
+16. [Serie «Corazón»](#16--serie-corazón)
 
 ---
 
@@ -325,7 +326,8 @@ frames únicos de los 28 nominales).
 | 512 px | A (trazo) | app store, prensa, sticker |
 
 **Regla resuelta:** B en **16 y 20 px**; A desde **24 px**. La familia extendida
-(«Me sumo», «Misma causa») y la serie «Abrazo» solo desde 24 px. El borrador se
+(«Me sumo», «Misma causa»), la serie «Abrazo» y la serie «Corazón» solo desde
+24 px (salvo la B de 16/20 de Corazón). El borrador se
 contradecía entre §9.1 y §10.3; manda la legibilidad medida.
 
 ### 9.2 · Tintas
@@ -513,12 +515,12 @@ licencia), enlace a CC BY 4.0 e indicación de cambios; fórmulas listas en
    splines declarados.
 4. **Máscaras de «Abrazo»:** máscara declarada y referenciada, ids únicos,
    hueco de 4.8 u, mano de 3.1 u y brazo de 2.4 u con mano de 1.7 u.
-5. **Exportación:** 204 PNG de familia (4 tintas × 51 tamaños) + 12 PNG de
-   sticker (4 tintas × 3 tamaños), todos a tamaño exacto y con alfa; regla B 16/20
-   vs A ≥ 24, serie Abrazo 24–512, WebP animado 512 × 512, GIF, WebP estáticos,
-   convención de nombres.
+5. **Exportación:** 296 PNG de familia (4 tintas × 74 tamaños) + 24 PNG de
+   stickers (4 tintas × 3 tamaños × 2 stickers), todos a tamaño exacto y con
+   alfa; regla B 16/20 vs A ≥ 24, serie Abrazo 24–512, serie Corazón B 16/20 y
+   A 24–512, WebP animados 512 × 512, GIF, WebP estáticos, convención de nombres.
 
-Resultado: **364 PASA · 0 FALLA**. Acta:
+Resultado: **547 PASA · 0 FALLA**. Acta:
 [`docs/verificacion-geometrica.md`](docs/verificacion-geometrica.md).
 
 ---
@@ -532,6 +534,8 @@ Lo que queda es decisión y validación externa, no diseño:
       <https://github.com/osarevalo/solidaridad-emoticon>.
 - [x] **Serie «Abrazo» integrada** (v1.2.0): 4 glifos, 112 PNG, hoja propia y
       verificación de máscaras.
+- [x] **Serie «Corazón» integrada** (v1.3.0): 5 glifos, 92 PNG + 12 de sticker,
+      hoja propia y sticker animado.
 - [ ] Revisión con lector de pantalla en contexto real (bandeja de emojis).
 - [ ] Prueba de legibilidad a 16 px en pantalla no-retina.
 - [ ] Si el sistema de íconos del producto usa grilla de 24 × 24, generar una
@@ -551,6 +555,7 @@ Lo que queda es decisión y validación externa, no diseño:
 | 1.0 | Documento maestro inicial (DeepSeek). Concepto «Hombro con hombro». Geometría «a ojo»: cabezas con trazo 2.4, unión 16.04/15.96, base 14.8/17.2, gap 1.8. |
 | 1.1 | Cierre de producción: cabezas rellenas (trazo 1.2), unión exacta (16, 17.5), base 13.6/18.4, gap real 2.0, brazo de «Me sumo» desde x = −1.4, `role`/`aria-label`, 92 PNG de familia + 12 de sticker, WebP animado + GIF, verificación automática (178 comprobaciones), README, hoja de contactos y vista previa. Publicación abierta (2026-11-16): licencias CC BY 4.0 + MIT, repo público y release. |
 | 1.2 | Serie alternativa «Abrazo»: 4 glifos nuevos (`abrazo`, `abrazo-me-sumo`, `abrazo-causa`, `abrazo-mutuo`), 112 PNG (4 tintas × 7 tamaños), hoja `contact-sheet-abrazo.png`, máscara knockout para el brazo, verificación ampliada a 364 comprobaciones y release v1.2.0. |
+| 1.3 | Serie «Corazón»: 5 glifos con corazón centrado entre las figuras (A, B, me sumo, misma causa, sticker), 92 PNG + 12 de sticker, hoja `contact-sheet-corazon.png`, sticker animado con aparición del corazón, verificación ampliada a 547 comprobaciones y release v1.3.0. |
 
 ---
 
@@ -632,4 +637,52 @@ referenciada, ids únicos, hueco y mano). Resultado global: **364 PASA · 0 FALL
 
 ---
 
-*Documento único de trabajo · paquete v1.2.0 · listo para usar y para continuar.*
+## 16 · Serie «Corazón»
+
+### 16.1 · Concepto
+
+Tercera serie: **la serie original con un corazón entre las dos figuras**. Es
+una variante pedida de forma explícita; el corazón también se lee como afecto o
+pareja, por eso queda separada de «Hombro con hombro» y no la sustituye.
+
+| Archivo | `aria-label` | Uso |
+|---|---|---|
+| `src/corazon.svg` | Solidaridad con corazón | glifo principal A |
+| `src/corazon-fill.svg` | Solidaridad con corazón | silueta B (16/20) |
+| `src/corazon-me-sumo.svg` | Me sumo con corazón | alguien más se acerca |
+| `src/corazon-causa.svg` | Misma causa con corazón | misma base / misma causa |
+| `src/corazon-sticker.svg` | Solidaridad con corazón | sticker animado |
+
+### 16.2 · Geometría y animación
+
+- Corazón centrado en **(16, 11.4)** en A y **(16, 12.2)** en B, tamaño
+  3.1 × 3.1 u, apoyado en el hueco entre las cabezas.
+- En el sticker aparece a los **0.35 s**, con escala 0 → 1.2 → 1 y opacidad
+  0 → 1; las figuras conservan la entrada desde los bordes del sticker original.
+- Sin máscaras ni segundo color: es un path relleno con `currentColor`.
+
+### 16.3 · Código maestro
+
+```svg
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none" role="img" aria-label="Solidaridad con corazón">
+  <g stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M4.8 25.5 L6.04 17.5 C7.07 10.83 17.07 10.83 16 17.5 L13.6 25.5"/>
+    <circle cx="11.8" cy="8.8" r="2.6" fill="currentColor" stroke-width="1.2"/>
+    <path d="M27.2 25.5 L25.96 17.5 C24.93 10.83 14.93 10.83 16 17.5 L18.4 25.5"/>
+    <circle cx="20.2" cy="8.8" r="2.6" fill="currentColor" stroke-width="1.2"/>
+
+  </g>
+  <g transform="translate(16 11.4) scale(1.0)"><path d="M0 1.55 C-0.9 0.75 -1.55 0.15 -1.55 -0.55 C-1.55 -1.15 -1.1 -1.55 -0.55 -1.55 C-0.25 -1.55 0 -1.35 0 -1.1 C0 -1.35 0.25 -1.55 0.55 -1.55 C1.1 -1.55 1.55 -1.15 1.55 -0.55 C1.55 0.15 0.9 0.75 0 1.55 Z" fill="currentColor"/></g>
+</svg>
+```
+
+### 16.4 · Exportación
+
+PNG de 16/20 (B) y 24–512 (A) en las cuatro tintas; sticker PNG/WebP estático
+128/256/512 y WebP/GIF animado. La verificación comprueba el corazón centrado,
+la animación y los mismos criterios de la serie original. Resultado global:
+**547 PASA · 0 FALLA**.
+
+---
+
+*Documento único de trabajo · paquete v1.3.0 · listo para usar y para continuar.*

@@ -1,17 +1,18 @@
 # Solidaridad — paquete de emoticones
 
-Dos series de glifos monocromos que representan **apoyo y solidaridad**:
-la original de cinco glifos («me solidarizo con vos», «me sumo», «misma causa»)
-y la serie alternativa **«Abrazo»**, donde la figura izquierda pasa el brazo por
-encima del hombro de la derecha. Diseñadas para leerse como *horizontalidad y
-acompañamiento*, no como caridad desde arriba.
+Tres series de glifos monocromos que representan **apoyo y solidaridad**:
+la original de cinco glifos («me solidarizo con vos», «me sumo», «misma causa»),
+la serie alternativa **«Abrazo»** (una figura pasa el brazo por encima del
+hombro de la otra) y la serie **«Corazón»** (la original con un corazón entre
+las dos figuras). Diseñadas para leerse como *horizontalidad y acompañamiento*,
+no como caridad desde arriba.
 
 - **Canvas maestro:** 32 × 32 (`viewBox="0 0 32 32"`), trazo redondeado.
 - **Concepto:** dos figuras idénticas que se inclinan hasta tocarse los hombros.
   **Los hombros se tocan; las cabezas no.**
 - **Salidas:** SVG con `currentColor`, PNG de 16 a 512 px en cuatro tintas,
   sticker animado en WebP animado + GIF, y hoja de contactos.
-- **Verificación:** 364 comprobaciones geométricas y de empaquetado, 0 fallas
+- **Verificación:** 547 comprobaciones geométricas y de empaquetado, 0 fallas
   ([acta](docs/verificacion-geometrica.md)).
 - **Licencias:** arte y documentación [CC BY 4.0](LICENSE-ARTWORK); código
   [MIT](LICENSE). Uso comercial permitido.
@@ -22,6 +23,8 @@ acompañamiento*, no como caridad desde arriba.
 ![Los cinco glifos de «Solidaridad»](preview/contact-sheet.png)
 
 ![Serie alternativa «Abrazo»](preview/contact-sheet-abrazo.png)
+
+![Serie «Corazón»](preview/contact-sheet-corazon.png)
 
 ## Contenido
 
@@ -36,6 +39,11 @@ src/                       SVG maestros (5)
   abrazo-me-sumo.svg         serie Abrazo · «me sumo»
   abrazo-causa.svg           serie Abrazo · «misma causa»
   abrazo-mutuo.svg           serie Abrazo · mutuo
+  corazon.svg                serie Corazón · A
+  corazon-fill.svg           serie Corazón · B (16/20)
+  corazon-me-sumo.svg        serie Corazón · «me sumo»
+  corazon-causa.svg          serie Corazón · «misma causa»
+  corazon-sticker.svg        serie Corazón · sticker animado
 
 dist/
   png/{ink,teal,violet,white}/   PNG a tamaño exacto, con alfa
@@ -46,6 +54,7 @@ preview/
   preview.html               vista previa autocontenida (abrir en navegador)
   contact-sheet.png          hoja de contactos de la serie original
   contact-sheet-abrazo.png   hoja de contactos de la serie Abrazo
+  contact-sheet-corazon.png  hoja de contactos de la serie Corazón
 
 docs/
   verificacion-geometrica.md acta generada por scripts/verify_geometry.py
@@ -58,7 +67,7 @@ scripts/                     build reproducible (Python + cairosvg)
   requirements.txt
 
 DOCUMENTO-MAESTRO.md         documento de diseño completo y autocontenido
-CHANGELOG.md                 del borrador v1.0 al paquete v1.2.0
+CHANGELOG.md                 del borrador v1.0 al paquete v1.3.0
 LICENCIA.md                  resumen de licencias (ya aplicadas)
 LICENSE                      texto MIT (código)
 LICENSE-ARTWORK              texto CC BY 4.0 (arte y documentación)
@@ -74,6 +83,23 @@ ATRIBUCION.md                fórmulas de crédito para quienes lo usen
 | `src/solidaridad-me-sumo.svg` | Me sumo | 24–512 px | «alguien más se acerca» |
 | `src/solidaridad-causa.svg` | Misma causa | 24–512 px | causa compartida |
 | `src/solidaridad-sticker.svg` | Me solidarizo con vos | 512 px | sticker animado |
+
+## Serie «Corazón»
+
+La serie original con un **corazón entre las dos figuras**, en la misma base
+(cabezas que no se tocan, hombros que sí). Es una serie aparte: el corazón
+también se lee como afecto o pareja, no solo como apoyo.
+
+| Archivo | `aria-label` | Tamaños | Uso |
+|---|---|---|---|
+| `src/corazon.svg` | Solidaridad con corazón | 24–512 px | glifo principal (trazo) |
+| `src/corazon-fill.svg` | Solidaridad con corazón | 16 y 20 px | silueta |
+| `src/corazon-me-sumo.svg` | Me sumo con corazón | 24–512 px | alguien más se acerca |
+| `src/corazon-causa.svg` | Misma causa con corazón | 24–512 px | causa compartida |
+| `src/corazon-sticker.svg` | Solidaridad con corazón | 512 px | sticker animado |
+
+PNG en las cuatro tintas: `dist/png/{ink,teal,violet,white}/corazon_*.png`.
+Hoja de la serie: [contact-sheet-corazon.png](preview/contact-sheet-corazon.png).
 
 ## Serie alternativa · «Abrazo»
 
@@ -167,7 +193,7 @@ make sticker   # frames + WebP animado + GIF
 make verify    # recalcula la geometría y escribe docs/verificacion-geometrica.md
 make preview   # hoja de contactos + preview.html
 make all       # todo lo anterior
-make zip       # solidaridad-emoticon_v1.2.0.zip en el directorio padre
+make zip       # solidaridad-emoticon_v1.3.0.zip en el directorio padre
 ```
 
 Requisitos: Python ≥ 3.10, `cairosvg`, `pillow`; `ffmpeg` solo para el WebP
@@ -178,10 +204,12 @@ animado (sin ffmpeg se genera igualmente el GIF).
 `make verify` no confía en la documentación: recalcula el `viewBox`, la simetría
 espejo sobre `x = 16`, el punto de contacto de hombros, el hueco entre cabezas,
 el área activa, los desbordes de caja, la animación SMIL y la integridad de
-todos los PNG/WebP, incluidas las máscaras de «Abrazo». Resultado actual: **364 PASA · 0 FALLA**.
+todos los PNG/WebP, incluidas las máscaras de «Abrazo» y el corazón de la serie nueva. Resultado actual: **547 PASA · 0 FALLA**.
 
 ## Estado
 
+- Versión **1.3.0**: agrega la serie **«Corazón»** (5 glifos, A/B/me sumo/
+  misma causa/sticker) sin cambiar las otras dos series.
 - Versión **1.2.0**: agrega la serie alternativa **«Abrazo»** (4 glifos con brazo
   por encima del hombro) sin cambiar la serie original.
 - Versión **1.1.0** (borrador de diseño v1.0 cerrado y llevado a producción).
@@ -190,6 +218,6 @@ todos los PNG/WebP, incluidas las máscaras de «Abrazo». Resultado actual: **3
   «goteo» central, hueco real entre cabezas 2.0 u. Detalle en
   [CHANGELOG.md](CHANGELOG.md) y [DOCUMENTO-MAESTRO.md](DOCUMENTO-MAESTRO.md).
 - Repositorio público: <https://github.com/osarevalo/solidaridad-emoticon>
-  (release v1.2.0).
+  (release v1.3.0).
 - Licencias: arte y documentación **CC BY 4.0**; código **MIT**
   (ver [LICENCIA.md](LICENCIA.md)).

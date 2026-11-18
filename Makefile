@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: MIT
 PYTHON ?= .venv/bin/python
-VERSION := 1.2.0
+VERSION := 1.3.0
 ZIP := ../solidaridad-emoticon_v$(VERSION).zip
 
 .PHONY: setup assets sticker verify preview all zip clean
