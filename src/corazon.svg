@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none" role="img" aria-label="Solidaridad con corazón">
+  <g stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M4.8 25.5 L6.04 17.5 C7.07 10.83 17.07 10.83 16 17.5 L13.6 25.5"/>
+    <circle cx="11.8" cy="8.8" r="2.6" fill="currentColor" stroke-width="1.2"/>
+    <path d="M27.2 25.5 L25.96 17.5 C24.93 10.83 14.93 10.83 16 17.5 L18.4 25.5"/>
+    <circle cx="20.2" cy="8.8" r="2.6" fill="currentColor" stroke-width="1.2"/>
+
+  </g>
+  <g transform="translate(16 11.4) scale(1.0)"><path d="M0 1.55 C-0.9 0.75 -1.55 0.15 -1.55 -0.55 C-1.55 -1.15 -1.1 -1.55 -0.55 -1.55 C-0.25 -1.55 0 -1.35 0 -1.1 C0 -1.35 0.25 -1.55 0.55 -1.55 C1.1 -1.55 1.55 -1.15 1.55 -0.55 C1.55 0.15 0.9 0.75 0 1.55 Z" fill="currentColor"/></g>
+</svg>
