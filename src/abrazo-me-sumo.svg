@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none" role="img" aria-label="Abrazo, me sumo">
+  <defs>
+    <mask id="abzMsMask" maskUnits="userSpaceOnUse" x="0" y="0" width="32" height="32">
+      <rect x="0" y="0" width="32" height="32" fill="#fff"/>
+      <path d="M15.0 17.1 C18.0 13.4 22.9 13.0 26.6 15.4" fill="none" stroke="#000"
+            stroke-width="4.8" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="26.6" cy="15.4" r="3.1" fill="#000"/>
+    </mask>
+  </defs>
+  <g stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" mask="url(#abzMsMask)">
+    <path d="M27.2 25.5 L25.96 17.5 C24.93 10.83 14.93 10.83 16 17.5 L18.4 25.5"/>
+    <circle cx="20.2" cy="8.8" r="2.6" fill="currentColor" stroke-width="1.2"/>
+  </g>
+  <g stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M15.0 17.1 C18.0 13.4 22.9 13.0 26.6 15.4" fill="none"/>
+    <circle cx="26.6" cy="15.4" r="1.7" fill="currentColor" stroke="none"/>
+  </g>
+  <g stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M4.8 25.5 L6.04 17.5 C7.07 10.83 17.07 10.83 16 17.5 L13.6 25.5"/>
+    <circle cx="11.8" cy="8.8" r="2.6" fill="currentColor" stroke-width="1.2"/>
+    <path d="M-1.4 22.5 C0.3 19.8 3.1 17.6 6.8 16.9"/>
+  </g>
+</svg>
