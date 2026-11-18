@@ -1,7 +1,7 @@
 {
   "name": "solidaridad-emoticon",
-  "version": "1.1.0",
-  "description": "Familia de emoticones «Solidaridad» (apoyo y solidaridad): 5 SVG monocromos, PNG 16–512 px en 4 tintas y sticker animado.",
+  "version": "1.2.0",
+  "description": "Paquete de emoticones «Solidaridad» y serie alternativa «Abrazo»: SVG monocromos, PNG 16–512 px en 4 tintas y sticker animado.",
   "author": "osarevalo",
   "private": true,
   "license": "(MIT AND CC-BY-4.0)",
@@ -31,6 +31,8 @@
     "sticker",
     "solidaridad",
     "apoyo",
+    "abrazo",
+    "hug",
     "svg",
     "icon",
     "monochrome"
