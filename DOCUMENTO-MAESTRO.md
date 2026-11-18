@@ -1,8 +1,8 @@
 # Emoticón «Solidaridad» — documento maestro de diseño
 
 > **Nombre:** Solidaridad · «Me solidarizo con vos» · «Hombro con hombro»
-> **Estado:** diseño aprobado y **terminado** · paquete de producción v1.1.0
-> **Versión del documento:** 1.1 · 2026-11-15
+> **Estado:** diseño aprobado y **terminado** · paquete de producción v1.2.0
+> **Versión del documento:** 1.2 · 2026-11-18
 > **Formato maestro:** SVG · `viewBox="0 0 32 32"`
 > **Uso:** documento único y autocontenido. Contiene brief, brainstorming,
 > decisión, correcciones de ejecución, geometría verificada, código fuente,
@@ -16,7 +16,10 @@ diseño a SVG renderizado se detectaron cuatro defectos de ejecución que el
 borrador no podía ver (cabezas en anillo, nudo central, «goteo» en la base y
 cifras de separación incorrectas). Están corregidos, documentados en el
 [CHANGELOG](CHANGELOG.md) y comprobados por `scripts/verify_geometry.py`
-(178 comprobaciones, 0 fallas).
+(364 comprobaciones, 0 fallas). La versión 1.2 agrega la **serie alternativa
+«Abrazo»** (§15): cuatro glifos donde la figura izquierda pasa el brazo por
+encima del hombro de la derecha, con máscara knockout para que el brazo se lea
+sin un segundo color.
 
 ---
 
@@ -36,6 +39,7 @@ cifras de separación incorrectas). Están corregidos, documentados en el
 12. [Verificación](#12--verificación)
 13. [Próximos pasos](#13--próximos-pasos)
 14. [Changelog](#14--changelog)
+15. [Serie alternativa «Abrazo»](#15--serie-alternativa-abrazo)
 
 ---
 
@@ -321,8 +325,8 @@ frames únicos de los 28 nominales).
 | 512 px | A (trazo) | app store, prensa, sticker |
 
 **Regla resuelta:** B en **16 y 20 px**; A desde **24 px**. La familia extendida
-(«Me sumo», «Misma causa») solo desde 24 px. El borrador se contradecía entre
-§9.1 y §10.3; manda la legibilidad medida.
+(«Me sumo», «Misma causa») y la serie «Abrazo» solo desde 24 px. El borrador se
+contradecía entre §9.1 y §10.3; manda la legibilidad medida.
 
 ### 9.2 · Tintas
 
@@ -507,11 +511,14 @@ licencia), enlace a CC BY 4.0 e indicación de cambios; fórmulas listas en
    cabeza–hombro, áreas activas y desbordes de caja.
 3. **Sticker:** dos `animateTransform`, duración 0.55 s, overshoot ±0.6 u,
    splines declarados.
-4. **Exportación:** 92 PNG de la familia (4 tintas × 23 tamaños) + 12 PNG de
-   sticker (4 tintas × 3 tamaños), todos a tamaño exacto y con alfa; regla B 16/20 vs A ≥ 24,
-   WebP animado 512 × 512, GIF, WebP estáticos, convención de nombres.
+4. **Máscaras de «Abrazo»:** máscara declarada y referenciada, ids únicos,
+   hueco de 4.8 u, mano de 3.1 u y brazo de 2.4 u con mano de 1.7 u.
+5. **Exportación:** 204 PNG de familia (4 tintas × 51 tamaños) + 12 PNG de
+   sticker (4 tintas × 3 tamaños), todos a tamaño exacto y con alfa; regla B 16/20
+   vs A ≥ 24, serie Abrazo 24–512, WebP animado 512 × 512, GIF, WebP estáticos,
+   convención de nombres.
 
-Resultado: **178 PASA · 0 FALLA**. Acta:
+Resultado: **364 PASA · 0 FALLA**. Acta:
 [`docs/verificacion-geometrica.md`](docs/verificacion-geometrica.md).
 
 ---
@@ -523,6 +530,8 @@ Lo que queda es decisión y validación externa, no diseño:
 - [x] **Licencia decidida:** arte y documentación **CC BY 4.0**, código **MIT**
       (`LICENSE-ARTWORK`, `LICENSE`). Repositorio público:
       <https://github.com/osarevalo/solidaridad-emoticon>.
+- [x] **Serie «Abrazo» integrada** (v1.2.0): 4 glifos, 112 PNG, hoja propia y
+      verificación de máscaras.
 - [ ] Revisión con lector de pantalla en contexto real (bandeja de emojis).
 - [ ] Prueba de legibilidad a 16 px en pantalla no-retina.
 - [ ] Si el sistema de íconos del producto usa grilla de 24 × 24, generar una
@@ -541,7 +550,86 @@ Lo que queda es decisión y validación externa, no diseño:
 |---|---|
 | 1.0 | Documento maestro inicial (DeepSeek). Concepto «Hombro con hombro». Geometría «a ojo»: cabezas con trazo 2.4, unión 16.04/15.96, base 14.8/17.2, gap 1.8. |
 | 1.1 | Cierre de producción: cabezas rellenas (trazo 1.2), unión exacta (16, 17.5), base 13.6/18.4, gap real 2.0, brazo de «Me sumo» desde x = −1.4, `role`/`aria-label`, 92 PNG de familia + 12 de sticker, WebP animado + GIF, verificación automática (178 comprobaciones), README, hoja de contactos y vista previa. Publicación abierta (2026-11-16): licencias CC BY 4.0 + MIT, repo público y release. |
+| 1.2 | Serie alternativa «Abrazo»: 4 glifos nuevos (`abrazo`, `abrazo-me-sumo`, `abrazo-causa`, `abrazo-mutuo`), 112 PNG (4 tintas × 7 tamaños), hoja `contact-sheet-abrazo.png`, máscara knockout para el brazo, verificación ampliada a 364 comprobaciones y release v1.2.0. |
 
 ---
 
-*Documento único de trabajo · paquete v1.1.0 · listo para usar y para continuar.*
+## 15 · Serie alternativa «Abrazo»
+
+### 15.1 · Concepto
+
+Cuatro glifos que leen el mismo vínculo desde otro gesto: **la figura izquierda
+pasa el brazo por encima del hombro de la derecha y la mano queda visible al
+otro lado**. Es una serie adicional; la serie original («Hombro con hombro») no
+se modifica.
+
+| Archivo | `aria-label` | Uso |
+|---|---|---|
+| `src/abrazo.svg` | Abrazo de apoyo | glifo principal |
+| `src/abrazo-me-sumo.svg` | Abrazo, me sumo | alguien más se acerca |
+| `src/abrazo-causa.svg` | Abrazo, misma causa | misma base / misma causa |
+| `src/abrazo-mutuo.svg` | Abrazo mutuo | los dos brazos por encima |
+
+### 15.2 · Técnica: máscara knockout
+
+El brazo se dibuja con la misma tinta sobre el cuerpo derecho. Para que se lea
+sin agregar un segundo color, el cuerpo derecho se recorta con una **máscara**
+que deja **1.2 u de transparencia** a cada lado del brazo y de la mano:
+
+- brazo: `M15.0 17.1 C18.0 13.4 22.9 13.0 26.6 15.4` · trazo 2.4 · round cap;
+- mano: círculo r 1.7 en (26.6, 15.4);
+- máscara: el mismo camino con trazo 4.8 y la mano con r 3.1;
+- orden de capas: cuerpo derecho recortado → brazo → cuerpo izquierdo (así el
+  inicio del brazo queda oculto detrás del hombro izquierdo).
+
+El hueco es transparencia: sobre fondo claro se ve blanco y sobre fondo oscuro
+se ve oscuro. No hay un segundo color en el SVG.
+
+### 15.3 · Geometría y tamaños
+
+La base es idéntica a la serie original: cabezas r 2.6 en (11.8/20.2, 8.8),
+contacto de hombros (16, 17.5), base interior 13.6/18.4. La serie se exporta en
+**24–512 px** (4 tintas × 4 glifos × 7 tamaños = 112 PNG). A 16/20 px no se
+usa: ahí sigue la versión B de la serie original.
+
+### 15.4 · Código maestro del glifo principal
+
+```svg
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none" role="img" aria-label="Abrazo de apoyo">
+  <defs>
+    <mask id="abzMask" maskUnits="userSpaceOnUse" x="0" y="0" width="32" height="32">
+      <rect x="0" y="0" width="32" height="32" fill="#fff"/>
+      <path d="M15.0 17.1 C18.0 13.4 22.9 13.0 26.6 15.4" fill="none" stroke="#000"
+            stroke-width="4.8" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="26.6" cy="15.4" r="3.1" fill="#000"/>
+    </mask>
+  </defs>
+  <g stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" mask="url(#abzMask)">
+    <path d="M27.2 25.5 L25.96 17.5 C24.93 10.83 14.93 10.83 16 17.5 L18.4 25.5"/>
+    <circle cx="20.2" cy="8.8" r="2.6" fill="currentColor" stroke-width="1.2"/>
+  </g>
+  <g stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M15.0 17.1 C18.0 13.4 22.9 13.0 26.6 15.4" fill="none"/>
+    <circle cx="26.6" cy="15.4" r="1.7" fill="currentColor" stroke="none"/>
+  </g>
+  <g stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M4.8 25.5 L6.04 17.5 C7.07 10.83 17.07 10.83 16 17.5 L13.6 25.5"/>
+    <circle cx="11.8" cy="8.8" r="2.6" fill="currentColor" stroke-width="1.2"/>
+  </g>
+</svg>
+```
+
+Las variantes están en `src/abrazo-me-sumo.svg`, `src/abrazo-causa.svg` y
+`src/abrazo-mutuo.svg`; todas comparten la misma base y la misma máscara.
+
+### 15.5 · Verificación
+
+`make verify` comprueba para la serie: existencia, `viewBox`, `role`,
+`aria-label`, ausencia de colores fijos fuera de `defs`, simetría de los cuerpos,
+contacto de hombros, cabezas, área activa, frontera del `viewBox` (incluido el
+brazo de «Me sumo» que entra desde fuera) y las máscaras (declarada,
+referenciada, ids únicos, hueco y mano). Resultado global: **364 PASA · 0 FALLA**.
+
+---
+
+*Documento único de trabajo · paquete v1.2.0 · listo para usar y para continuar.*

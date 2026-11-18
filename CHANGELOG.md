@@ -1,5 +1,41 @@
 # Changelog
 
+## v1.2.0 — 2026-11-18 · serie alternativa «Abrazo»
+
+Suma una segunda lectura del mismo vínculo: la figura izquierda pasa el brazo
+por encima del hombro de la derecha y la mano queda visible al otro lado. La
+serie original queda intacta; «Abrazo» es una familia adicional.
+
+### Añadido
+
+- `src/abrazo.svg` (glifo principal), `src/abrazo-me-sumo.svg`,
+  `src/abrazo-causa.svg` y `src/abrazo-mutuo.svg`.
+- **112 PNG nuevos** de la serie (4 glifos × 7 tamaños × 4 tintas), de 24 a
+  512 px, en `dist/png/{ink,teal,violet,white}/abrazo*`.
+- Hoja de contactos propia: `preview/contact-sheet-abrazo.png`.
+- Sección de la serie en `preview/preview.html`, README y documento maestro.
+- `verify_geometry.py` amplía la verificación a **364 comprobaciones**: cuerpo
+  simétrico, cabezas, áreas activas, máscaras knockout y exportación de la
+  serie nueva.
+
+### Técnica
+
+El brazo se dibuja con la misma tinta sobre el cuerpo derecho; ese cuerpo se
+recorta con una **máscara knockout** de 4.8 u que deja 1.2 u de transparencia a
+cada lado del brazo y de la mano. El hueco toma el color del fondo: no hay un
+segundo color en el SVG. La mano va en (26.6, 15.4), r 1.7; el brazo es
+`M15.0 17.1 C18.0 13.4 22.9 13.0 26.6 15.4` con trazo 2.4.
+
+### Límites
+
+La serie funciona desde **24 px**; a 16 y 20 px se usa la serie original
+(B · silueta). No se agregó sticker animado para «Abrazo» en esta versión.
+
+### Sin cambios
+
+- Serie original, licencias (CC BY 4.0 + MIT), sticker y política de tamaños.
+- Repositorio: <https://github.com/osarevalo/solidaridad-emoticon>.
+
 ## v1.1.0 — 2026-11-15 · paquete de producción
 
 Cierra el documento maestro v1.0 (borrador aprobado en DeepSeek) y lo convierte
