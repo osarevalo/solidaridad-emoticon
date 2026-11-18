@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import datetime as dt
 import io
+import re
 from pathlib import Path
 
 import cairosvg
@@ -23,6 +24,13 @@ GLYPHS = [
     ("solidaridad-me-sumo", "«Me sumo»", "solidaridad-me-sumo.svg", "≥ 24 px"),
     ("solidaridad-causa", "«Misma causa»", "solidaridad-causa.svg", "≥ 24 px"),
     ("solidaridad-sticker", "Sticker", "solidaridad-sticker.svg", "animado · 512"),
+]
+
+ABRAZO_GLYPHS = [
+    ("abrazo", "Abrazo", "abrazo.svg", "brazo por encima del hombro · ≥ 24 px"),
+    ("abrazo-me-sumo", "Abrazo · «me sumo»", "abrazo-me-sumo.svg", "alguien más se acerca · ≥ 24 px"),
+    ("abrazo-causa", "Abrazo · «misma causa»", "abrazo-causa.svg", "misma base / misma causa · ≥ 24 px"),
+    ("abrazo-mutuo", "Abrazo mutuo", "abrazo-mutuo.svg", "los dos brazos por encima · ≥ 24 px"),
 ]
 
 INK = "#1F2933"
@@ -48,14 +56,23 @@ def rounded(draw: ImageDraw.ImageDraw, box, radius: int, fill: str, outline: str
     draw.rounded_rectangle(box, radius=radius, fill=fill, outline=outline, width=width)
 
 
+def checks_count() -> int:
+    report = ROOT / "docs" / "verificacion-geometrica.md"
+    if report.exists():
+        m = re.search(r"Resultado global:\s*(\d+)\s*PASA", report.read_text(encoding="utf-8"))
+        if m:
+            return int(m.group(1))
+    return 0
+
+
 def contact_sheet() -> Path:
-    W, H = 1920, 1310
+    W, H = 1920, 1332
     sheet = Image.new("RGBA", (W, H), "#FFFFFF")
     d = ImageDraw.Draw(sheet)
 
     d.text((80, 54), "Solidaridad", font=font(56, True), fill=INK)
     d.text((80, 124), "Paquete de emoticones · apoyo y solidaridad", font=font(26), fill="#475467")
-    meta = "v1.1.0 · 5 glifos · 16–512 px · monocromo"
+    meta = "v1.2.0 · 9 glifos · 16–512 px · monocromo"
     d.text((W - 80 - d.textlength(meta, font=font(20)), 84), meta, font=font(20), fill="#667085")
     d.line((80, 186, W - 80, 186), fill="#E4E7EC", width=2)
 
@@ -111,13 +128,56 @@ def contact_sheet() -> Path:
 
     # --- pie ---------------------------------------------------------------------
     today = dt.date.today().isoformat()
-    foot1 = "Verificación geométrica: 178 comprobaciones · 0 fallas  ·  docs/verificacion-geometrica.md"
+    checks = checks_count()
+    foot1 = f"Verificación geométrica: {checks} comprobaciones · 0 fallas  ·  docs/verificacion-geometrica.md"
     foot2 = f"Arte CC BY 4.0 · Código MIT  ·  github.com/osarevalo/solidaridad-emoticon  ·  {today}"
-    d.text((80, 1254), foot1, font=font(16), fill="#98A2B3")
-    d.text((80, 1280), foot2, font=font(16), fill="#98A2B3")
+    foot3 = "Serie alternativa «Abrazo»: preview/contact-sheet-abrazo.png  ·  solo ≥ 24 px"
+    d.text((80, 1250), foot1, font=font(16), fill="#98A2B3")
+    d.text((80, 1276), foot2, font=font(16), fill="#98A2B3")
+    d.text((80, 1302), foot3, font=font(15), fill="#98A2B3")
 
     OUT.mkdir(parents=True, exist_ok=True)
     path = OUT / "contact-sheet.png"
+    sheet.convert("RGB").save(path, optimize=True)
+    return path
+
+
+def abrazo_contact_sheet() -> Path:
+    W, H = 1920, 1190
+    sheet = Image.new("RGBA", (W, H), "#FFFFFF")
+    d = ImageDraw.Draw(sheet)
+    d.text((80, 54), "Serie alternativa · Abrazo", font=font(52, True), fill=INK)
+    d.text((80, 122), "Brazo por encima del hombro, con la mano visible al otro lado", font=font(25), fill="#475467")
+    meta = "v1.2.0 · 4 glifos · 24–512 px · una sola tinta"
+    d.text((W - 80 - d.textlength(meta, font=font(19)), 84), meta, font=font(19), fill="#667085")
+    d.line((80, 184, W - 80, 184), fill="#E4E7EC", width=2)
+    cards = [(80 + i * 460, 210, 80 + i * 460 + 420, 610) for i in range(4)]
+    for (x0, y0, x1, y1), (name, label, filename, sizes) in zip(cards, ABRAZO_GLYPHS):
+        rounded(d, (x0, y0, x1, y1), 18, "#FFFFFF", "#E4E7EC", 2)
+        im = render(name, 260, INK)
+        paste_center(sheet, im, (x0 + x1) // 2, y0 + 138)
+        d.text((x0 + 24, y0 + 292), label, font=font(23, True), fill=INK)
+        d.text((x0 + 24, y0 + 326), filename, font=font(16), fill="#667085")
+        d.text((x0 + 24, y0 + 354), sizes, font=font(14), fill="#98A2B3")
+    d.text((80, 660), "Escala del glifo principal", font=font(30, True), fill=INK)
+    d.text((80, 700), "El brazo y la mano se sostienen desde 24 px; a 16/20 se usa la serie original.", font=font(18), fill="#667085")
+    x = 120; baseline = 980
+    for size in (256, 128, 96, 64, 48, 32, 24):
+        im = render("abrazo", size, INK)
+        sheet.alpha_composite(im, (x, baseline - size))
+        d.text((x + size / 2 - 14, baseline + 12), f"{size}", font=font(15), fill="#667085")
+        x += size + 42
+    rounded(d, (80, 1020, W - 80, 1130), 18, INK)
+    d.text((112, 1042), "Tinta blanca / oscuro", font=font(20, True), fill="#FFFFFF")
+    sheet.alpha_composite(render("abrazo", 80, "#FFFFFF"), (370, 1032))
+    sheet.alpha_composite(render("abrazo-me-sumo", 80, "#FFFFFF"), (490, 1032))
+    d.text((620, 1040), "La separación del brazo es una máscara knockout: el hueco toma el color del fondo.", font=font(17), fill="#D0D5DD")
+    d.text((620, 1068), "No hay un segundo color en el SVG: el hueco es transparencia.", font=font(17), fill="#D0D5DD")
+    checks = checks_count()
+    d.text((80, 1152), f"Verificación: {checks} comprobaciones · 0 fallas  ·  docs/verificacion-geometrica.md", font=font(15), fill="#98A2B3")
+    d.text((80, 1174), "Arte CC BY 4.0 · Código MIT  ·  github.com/osarevalo/solidaridad-emoticon", font=font(15), fill="#98A2B3")
+    OUT.mkdir(parents=True, exist_ok=True)
+    path = OUT / "contact-sheet-abrazo.png"
     sheet.convert("RGB").save(path, optimize=True)
     return path
 
@@ -127,6 +187,17 @@ def html() -> Path:
         raw = (SRC / f"{name}.svg").read_text(encoding="utf-8").strip()
         raw = raw.replace("<svg ", f'<svg style="width:{size}px;height:{size}px;{css}" ', 1)
         return raw
+
+    checks = checks_count()
+    abrazo_cards = ""
+    for name, label, filename, sizes in ABRAZO_GLYPHS:
+        abrazo_cards += f"""
+        <article class="card">
+          <div class="glyph">{svg(name, 128)}</div>
+          <h3>{label}</h3>
+          <code>{filename}</code>
+          <p class="muted">{sizes}</p>
+        </article>"""
 
     glyph_cards = ""
     for name, label, filename, sizes in GLYPHS:
@@ -229,9 +300,9 @@ def html() -> Path:
     <h1>Solidaridad</h1>
     <p class="lead">«Me solidarizo con vos» · apoyo y solidaridad, sin caridad desde arriba.</p>
     <div class="chips">
-      <span class="chip">5 glifos</span><span class="chip">SVG maestro 32 × 32</span>
+      <span class="chip">9 glifos</span><span class="chip">SVG maestro 32 × 32</span>
       <span class="chip">PNG 16–512 px</span><span class="chip">monocromo · currentColor</span>
-      <span class="chip">sticker animado</span><span class="chip">178 comprobaciones · 0 fallas</span>
+      <span class="chip">sticker animado</span><span class="chip">serie Abrazo</span><span class="chip">{checks} comprobaciones · 0 fallas</span>
       <span class="chip">arte CC BY 4.0</span><span class="chip">código MIT</span>
     </div>
   </header>
@@ -263,6 +334,14 @@ def html() -> Path:
         <figure class="tint" style="color:#FFFFFF">{svg("solidaridad-me-sumo", 84)}<figcaption>Familia · «Me sumo»</figcaption></figure>
       </div>
     </div>
+  </section>
+
+  <section>
+    <h2>Serie alternativa · Abrazo</h2>
+    <p class="sub">Brazo por encima del hombro, con la mano al otro lado. Una máscara knockout separa el brazo del cuerpo sin usar un segundo color. Solo desde 24 px: a 16/20 se usa la serie original.</p>
+    <div class="grid">{abrazo_cards}
+    </div>
+    <p class="sub" style="margin-top:14px">Hoja de contactos de la serie: <a href="contact-sheet-abrazo.png">contact-sheet-abrazo.png</a>.</p>
   </section>
 
   <section>
@@ -331,8 +410,8 @@ def html() -> Path:
   </section>
 
   <footer>
-    <p><strong>Solidaridad v1.1.0</strong> · paquete generado el {dt.date.today().isoformat()} ·
-    <span class="ok">178 comprobaciones PASA · 0 FALLA</span></p>
+    <p><strong>Solidaridad v1.2.0</strong> · paquete generado el {dt.date.today().isoformat()} ·
+    <span class="ok">{checks} comprobaciones PASA · 0 FALLA</span></p>
     <p>Contenido: <code>src/</code> (maestros), <code>dist/png/</code> (4 tintas), <code>dist/sticker/</code>,
     <code>docs/</code>, <code>preview/</code>. Léase también <code>DOCUMENTO-MAESTRO.md</code> y <code>README.md</code>.</p>
     <p>Licencias: arte y documentación <a href="../LICENSE-ARTWORK">CC BY 4.0</a> · código
@@ -351,8 +430,10 @@ def html() -> Path:
 
 def main() -> int:
     sheet = contact_sheet()
+    abrazo_sheet = abrazo_contact_sheet()
     page = html()
     print(f"OK: {sheet.relative_to(ROOT)}")
+    print(f"OK: {abrazo_sheet.relative_to(ROOT)}")
     print(f"OK: {page.relative_to(ROOT)}")
     return 0
 

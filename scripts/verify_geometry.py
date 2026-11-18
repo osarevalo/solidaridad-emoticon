@@ -26,6 +26,10 @@ SVGS = {
     "solidaridad-fill": "B · silueta",
     "solidaridad-me-sumo": "familia · «Me sumo»",
     "solidaridad-causa": "familia · «Misma causa»",
+    "abrazo": "alternativa · «Abrazo»",
+    "abrazo-me-sumo": "alternativa · «Me sumo»",
+    "abrazo-causa": "alternativa · «Misma causa»",
+    "abrazo-mutuo": "alternativa · «Abrazo mutuo»",
     "solidaridad-sticker": "sticker animado",
 }
 
@@ -34,6 +38,10 @@ SIZES = {
     "solidaridad-fill": [16, 20],
     "solidaridad-me-sumo": [24, 32, 48, 64, 128, 256, 512],
     "solidaridad-causa": [24, 32, 48, 64, 128, 256, 512],
+    "abrazo": [24, 32, 48, 64, 128, 256, 512],
+    "abrazo-me-sumo": [24, 32, 48, 64, 128, 256, 512],
+    "abrazo-causa": [24, 32, 48, 64, 128, 256, 512],
+    "abrazo-mutuo": [24, 32, 48, 64, 128, 256, 512],
 }
 TINTS = ["ink", "teal", "violet", "white"]
 STICKER_SIZES = [128, 256, 512]
@@ -104,7 +112,7 @@ def roots_quadratic(a: float, b: float, c: float) -> list[float]:
 def element_bounds(el: ET.Element, inherited_sw: float) -> tuple[float, float, float, float]:
     """BBox visual (con trazo) de un <path> o <circle>."""
     tag = el.tag.split("}")[-1]
-    sw = float(el.get("stroke-width", inherited_sw))
+    sw = 0.0 if el.get("stroke") == "none" else float(el.get("stroke-width", inherited_sw))
     if tag == "circle":
         cx, cy, r = (float(el.get(k)) for k in ("cx", "cy", "r"))
         rr = r + sw / 2
@@ -146,7 +154,13 @@ def svg_info(path: Path) -> dict:
     group_sw = group.get("stroke-width") if group is not None else None
     root_sw = root.get("stroke-width")
     base_sw = float(group_sw or root_sw or "0")
-    elements = [el for el in root.iter() if el.tag.split("}")[-1] in ("path", "circle")]
+    hidden_ids = set()
+    for container in root.iter():
+        if container.tag.split("}")[-1] in ("defs", "mask", "clipPath"):
+            for sub in container.iter():
+                hidden_ids.add(id(sub))
+    elements = [el for el in root.iter()
+                if el.tag.split("}")[-1] in ("path", "circle") and id(el) not in hidden_ids]
     boxes = [element_bounds(el, float(el.get("stroke-width", base_sw))) for el in elements]
     x0 = min(b[0] for b in boxes); y0 = min(b[1] for b in boxes)
     x1 = max(b[2] for b in boxes); y1 = max(b[3] for b in boxes)
@@ -174,22 +188,24 @@ def check_masters() -> None:
         add(block, f"{name}: sin width/height fijos",
             root.get("width") is None and root.get("height") is None,
             f"width={root.get('width')} height={root.get('height')}")
-        add(block, f"{name}: sin colores fijos (solo currentColor)",
-            not re.search(r"#[0-9a-fA-F]{3,8}\b|\brgb\(", info["raw"]), "sin hex/rgb")
+        outside_defs = re.sub(r"<defs>.*?</defs>", "", info["raw"], flags=re.S)
+        add(block, f"{name}: sin colores fijos fuera de defs (solo currentColor)",
+            not re.search(r"#[0-9a-fA-F]{3,8}\b|\brgb\(", outside_defs), "sin hex/rgb fuera de defs")
         add(block, f"{name}: sin <script> ni recursos externos",
             "<script" not in info["raw"] and "xlink:href" not in info["raw"]
             and "href=\"http" not in info["raw"], "limpio")
 
-    # Simetría y contacto en los glifos base
-    for name in ("solidaridad", "solidaridad-fill", "solidaridad-me-sumo",
-                 "solidaridad-causa", "solidaridad-sticker"):
+    # Simetría y contacto (cuerpos identificados por su trazo, no por su orden)
+    for name in SVGS:
         info = svg_info(SRC / f"{name}.svg")
         paths = [el for el in info["elements"] if el.tag.endswith("path")]
-        if len(paths) < 2:
+        left_el = next((p for p in paths if p.get("d", "").startswith("M4.8 25.5 L6.04 17.5")), None)
+        right_el = next((p for p in paths if p.get("d", "").startswith("M27.2 25.5 L25.96 17.5")), None)
+        if left_el is None or right_el is None:
             add("Geometría", f"{name}: dos cuerpos", False, f"{len(paths)} path(s)")
             continue
-        left = parse_path(paths[0].get("d"))
-        right = parse_path(paths[1].get("d"))
+        left = parse_path(left_el.get("d"))
+        right = parse_path(right_el.get("d"))
         mir = mirror_cmds(left)
         ok = len(mir) == len(right) and all(
             m[0] == r[0] and len(m[1]) == len(r[1])
@@ -198,7 +214,6 @@ def check_masters() -> None:
         )
         add("Geometría", f"{name}: simetría especular exacta sobre x=16", ok,
             "izquierda espejada == derecha")
-        # punto de contacto compartido
         contact = None
         for cmd, nums in left:
             if cmd == "C" and abs(nums[4] - 16) < 1e-9 and abs(nums[5] - 17.5) < 1e-9:
@@ -211,9 +226,11 @@ def check_masters() -> None:
             contact == contact_r == (16.0, 17.5), f"{contact} / {contact_r}")
 
     # Cabezas: radio visual, separación y unión con hombros
-    for name in ("solidaridad", "solidaridad-fill"):
+    for name in ("solidaridad", "solidaridad-fill", "abrazo", "abrazo-me-sumo",
+                 "abrazo-causa", "abrazo-mutuo"):
         info = svg_info(SRC / f"{name}.svg")
-        circles = [el for el in info["elements"] if el.tag.endswith("circle")]
+        circles = [el for el in info["elements"] if el.tag.endswith("circle")
+                   and abs(float(el.get("r")) - 2.6) < 1e-9]
         cxs = [float(c.get("cx")) for c in circles]
         cys = [float(c.get("cy")) for c in circles]
         r = float(circles[0].get("r"))
@@ -238,17 +255,21 @@ def check_masters() -> None:
         "solidaridad": (3.6, 5.6, 28.4, 26.7),
         "solidaridad-fill": (4.2, 5.6, 27.8, 26.1),
         "solidaridad-causa": (3.6, 5.6, 28.4, 28.0),
+        "abrazo": (3.6, 5.6, 28.4, 26.7),
+        "abrazo-causa": (3.6, 5.6, 28.4, 28.0),
+        "abrazo-mutuo": (3.6, 5.6, 28.4, 26.7),
     }
     for name, (x0, y0, x1, y1) in expect.items():
         b = svg_info(SRC / f"{name}.svg")["bbox"]
         ok = all(abs(a - e) < 0.01 for a, e in zip(b, (x0, y0, x1, y1)))
         add("Geometría", f"{name}: área activa ({x0}, {y0})–({x1}, {y1})", ok,
             "(" + ", ".join(fmt(v) for v in b) + ")")
-    # Me sumo: brazo recortado a propósito
-    b = svg_info(SRC / "solidaridad-me-sumo.svg")["bbox"]
-    add("Geometría", "«Me sumo»: el brazo entra desde fuera del viewBox (recorte intencional)",
-        b[0] < 0 and abs(b[0] + 2.6) < 0.05 and abs(b[3] - 26.7) < 0.05,
-        f"xmin={fmt(b[0])} (se recorta a 0), ymax={fmt(b[3])}")
+    # Brazos que entran desde fuera del viewBox (recorte intencional)
+    for name in ("solidaridad-me-sumo", "abrazo-me-sumo"):
+        b = svg_info(SRC / f"{name}.svg")["bbox"]
+        add("Geometría", f"{name}: el brazo entra desde fuera del viewBox (recorte intencional)",
+            b[0] < 0 and abs(b[0] + 2.6) < 0.05 and abs(b[3] - 26.7) < 0.05,
+            f"xmin={fmt(b[0])} (se recorta a 0), ymax={fmt(b[3])}")
     # Sticker: animación SMIL
     raw = (SRC / "solidaridad-sticker.svg").read_text(encoding="utf-8")
     anims = re.findall(r"<animateTransform[^>]*/>", raw)
@@ -261,11 +282,24 @@ def check_masters() -> None:
     add("Sticker", "respeta prefers-reduced-motion (documentado en CSS de la familia)",
         True, "ver preview/preview.html y §Accesibilidad del documento maestro")
 
+    # Máscaras knockout de la serie «Abrazo»
+    for name in ("abrazo", "abrazo-me-sumo", "abrazo-causa", "abrazo-mutuo"):
+        raw = (SRC / f"{name}.svg").read_text(encoding="utf-8")
+        ids = re.findall(r'<mask id="([^"]+)"', raw)
+        refs = re.findall(r'mask="url\(#([^)]+)\)"', raw)
+        add("Máscaras", f"{name}: máscara declarada y referenciada",
+            bool(ids) and set(ids) == set(refs), f"ids={ids} refs={refs}")
+        add("Máscaras", f"{name}: ids únicos", len(ids) == len(set(ids)), f"{len(ids)} máscara(s)")
+        add("Máscaras", f"{name}: hueco de 4.8 u y mano de 3.1 u en la máscara",
+            'stroke-width="4.8"' in raw and 'r="3.1"' in raw, "knockout")
+        add("Máscaras", f"{name}: brazo de 2.4 u y mano de 1.7 u dibujados",
+            'r="1.7"' in raw, "brazo + mano")
+
     # Fronteras dentro del viewBox (salvo excepción documentada)
     for name in SVGS:
         b = svg_info(SRC / f"{name}.svg")["bbox"]
         inside = b[0] >= -0.01 and b[1] >= -0.01 and b[2] <= 32.01 and b[3] <= 32.01
-        if name == "solidaridad-me-sumo":
+        if name in ("solidaridad-me-sumo", "abrazo-me-sumo"):
             add("Maestros SVG", "«Me sumo»: desborde solo del brazo (esperado)",
                 b[0] < 0 and b[2] <= 32.01, f"xmin={fmt(b[0])}")
         elif name == "solidaridad-sticker":
@@ -300,6 +334,13 @@ def check_exports() -> None:
         min(SIZES["solidaridad"]) == 24, f"min={min(SIZES['solidaridad'])}")
     add(block, "regla de tamaños: familia desde 24 px",
         min(SIZES["solidaridad-me-sumo"]) == 24 and min(SIZES["solidaridad-causa"]) == 24, "24")
+    add(block, "regla de tamaños: serie «Abrazo» desde 24 px",
+        all(min(SIZES[g]) == 24 for g in ("abrazo", "abrazo-me-sumo", "abrazo-causa", "abrazo-mutuo"))
+        and all(max(SIZES[g]) == 512 for g in ("abrazo", "abrazo-me-sumo", "abrazo-causa", "abrazo-mutuo")),
+        "24–512")
+    add(block, "serie «Abrazo» sin 16/20 (ahí se usa la serie original)",
+        all(16 not in SIZES[g] and 20 not in SIZES[g] for g in ("abrazo", "abrazo-me-sumo", "abrazo-causa", "abrazo-mutuo")),
+        "solo ≥ 24")
     add(block, "set completo de tamaños por tinta", total == len(TINTS) * sum(len(v) for v in SIZES.values()),
         f"{total} PNG")
 
@@ -367,6 +408,9 @@ def write_report() -> int:
         "  que entre por el borde; el recorte es intencional y no un error de caja.",
         "- El sticker animado se exporta también frame a frame con la misma curva de",
         "  easing que el SMIL, de modo que el WebP/GIF coincide con el SVG.",
+        "- La serie «Abrazo» usa una máscara knockout: el cuerpo derecho se recorta",
+        "  alrededor del brazo y de la mano, dejando 1.2 u de transparencia. No agrega",
+        "  un segundo color; el hueco toma el color del fondo.",
         "- Las comprobaciones de color y accesibilidad se hacen sobre los maestros",
         "  (`currentColor`, `role=\"img\"`, `aria-label`); las tintas viven en el build.",
         "",

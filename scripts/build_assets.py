@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: MIT
-"""Genera los PNG de la familia «Solidaridad» a partir de los SVG maestros.
+"""Genera los PNG de las familias «Solidaridad» y «Abrazo» desde los SVG maestros.
 
 Uso:
     python scripts/build_assets.py            # todo
@@ -35,6 +35,11 @@ SIZES = {
     "solidaridad-fill": [16, 20],
     "solidaridad-me-sumo": [24, 32, 48, 64, 128, 256, 512],
     "solidaridad-causa": [24, 32, 48, 64, 128, 256, 512],
+    # Serie alternativa «Abrazo»: solo desde 24 px (el brazo se pierde por debajo).
+    "abrazo": [24, 32, 48, 64, 128, 256, 512],
+    "abrazo-me-sumo": [24, 32, 48, 64, 128, 256, 512],
+    "abrazo-causa": [24, 32, 48, 64, 128, 256, 512],
+    "abrazo-mutuo": [24, 32, 48, 64, 128, 256, 512],
 }
 
 # El sticker se exporta como pose final (sin SMIL) en PNG y WebP.
