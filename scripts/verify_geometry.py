@@ -30,6 +30,11 @@ SVGS = {
     "abrazo-me-sumo": "alternativa · «Me sumo»",
     "abrazo-causa": "alternativa · «Misma causa»",
     "abrazo-mutuo": "alternativa · «Abrazo mutuo»",
+    "corazon": "corazón · A",
+    "corazon-fill": "corazón · B",
+    "corazon-me-sumo": "corazón · «Me sumo»",
+    "corazon-causa": "corazón · «Misma causa»",
+    "corazon-sticker": "corazón · sticker",
     "solidaridad-sticker": "sticker animado",
 }
 
@@ -42,6 +47,10 @@ SIZES = {
     "abrazo-me-sumo": [24, 32, 48, 64, 128, 256, 512],
     "abrazo-causa": [24, 32, 48, 64, 128, 256, 512],
     "abrazo-mutuo": [24, 32, 48, 64, 128, 256, 512],
+    "corazon": [24, 32, 48, 64, 128, 256, 512],
+    "corazon-fill": [16, 20],
+    "corazon-me-sumo": [24, 32, 48, 64, 128, 256, 512],
+    "corazon-causa": [24, 32, 48, 64, 128, 256, 512],
 }
 TINTS = ["ink", "teal", "violet", "white"]
 STICKER_SIZES = [128, 256, 512]
@@ -160,7 +169,8 @@ def svg_info(path: Path) -> dict:
             for sub in container.iter():
                 hidden_ids.add(id(sub))
     elements = [el for el in root.iter()
-                if el.tag.split("}")[-1] in ("path", "circle") and id(el) not in hidden_ids]
+                if el.tag.split("}")[-1] in ("path", "circle") and id(el) not in hidden_ids
+                and not el.get("d", "").startswith("M0 1.55")]  # corazón local (se valida aparte)
     boxes = [element_bounds(el, float(el.get("stroke-width", base_sw))) for el in elements]
     x0 = min(b[0] for b in boxes); y0 = min(b[1] for b in boxes)
     x1 = max(b[2] for b in boxes); y1 = max(b[3] for b in boxes)
@@ -227,7 +237,8 @@ def check_masters() -> None:
 
     # Cabezas: radio visual, separación y unión con hombros
     for name in ("solidaridad", "solidaridad-fill", "abrazo", "abrazo-me-sumo",
-                 "abrazo-causa", "abrazo-mutuo"):
+                 "abrazo-causa", "abrazo-mutuo", "corazon", "corazon-fill",
+                 "corazon-me-sumo", "corazon-causa"):
         info = svg_info(SRC / f"{name}.svg")
         circles = [el for el in info["elements"] if el.tag.endswith("circle")
                    and abs(float(el.get("r")) - 2.6) < 1e-9]
@@ -258,6 +269,9 @@ def check_masters() -> None:
         "abrazo": (3.6, 5.6, 28.4, 26.7),
         "abrazo-causa": (3.6, 5.6, 28.4, 28.0),
         "abrazo-mutuo": (3.6, 5.6, 28.4, 26.7),
+        "corazon": (3.6, 5.6, 28.4, 26.7),
+        "corazon-fill": (4.2, 5.6, 27.8, 26.1),
+        "corazon-causa": (3.6, 5.6, 28.4, 28.0),
     }
     for name, (x0, y0, x1, y1) in expect.items():
         b = svg_info(SRC / f"{name}.svg")["bbox"]
@@ -265,7 +279,7 @@ def check_masters() -> None:
         add("Geometría", f"{name}: área activa ({x0}, {y0})–({x1}, {y1})", ok,
             "(" + ", ".join(fmt(v) for v in b) + ")")
     # Brazos que entran desde fuera del viewBox (recorte intencional)
-    for name in ("solidaridad-me-sumo", "abrazo-me-sumo"):
+    for name in ("solidaridad-me-sumo", "abrazo-me-sumo", "corazon-me-sumo"):
         b = svg_info(SRC / f"{name}.svg")["bbox"]
         add("Geometría", f"{name}: el brazo entra desde fuera del viewBox (recorte intencional)",
             b[0] < 0 and abs(b[0] + 2.6) < 0.05 and abs(b[3] - 26.7) < 0.05,
@@ -281,6 +295,29 @@ def check_masters() -> None:
         raw.count("0.16 1 0.3 1") == 2 and raw.count("0.4 0 0.2 1") == 2, "2+2")
     add("Sticker", "respeta prefers-reduced-motion (documentado en CSS de la familia)",
         True, "ver preview/preview.html y §Accesibilidad del documento maestro")
+    raw_c = (SRC / "corazon-sticker.svg").read_text(encoding="utf-8")
+    add("Sticker", "corazón: la figura izquierda y derecha conservan la entrada",
+        raw_c.count('values="-10 0; 0.6 0; 0 0"') == 1 and raw_c.count('values="10 0; -0.6 0; 0 0"') == 1,
+        "2 grupos")
+    add("Sticker", "corazón: aparece a los 0.35 s con escala 0→1.2→1",
+        'begin="0.35s"' in raw_c and 'values="0;1.2;1"' in raw_c, "3 keyframes")
+    add("Sticker", "corazón: opacidad 0→1 al aparecer",
+        'attributeName="opacity"' in raw_c, "animate opacity")
+
+    # Corazón de la serie «Corazón»
+    for name, yc in (("corazon", 11.4), ("corazon-me-sumo", 11.4),
+                     ("corazon-causa", 11.4), ("corazon-fill", 12.2)):
+        raw = (SRC / f"{name}.svg").read_text(encoding="utf-8")
+        add("Corazón", f"{name}: corazón centrado en (16, {yc})",
+            f'translate(16 {yc})' in raw and 'M0 1.55' in raw and 'fill="currentColor"' in raw,
+            f"translate(16 {yc}) · path de corazón")
+    raw = (SRC / "corazon-sticker.svg").read_text(encoding="utf-8")
+    add("Corazón", "corazon-sticker: dos animaciones de figura + aparición del corazón",
+        raw.count("<animateTransform") == 3 and 'begin="0.35s"' in raw and 'values="0;1.2;1"' in raw,
+        "2 translate + 1 scale · begin 0.35 s")
+    add("Corazón", "corazon-sticker: corazones en todas las variantes",
+        all((SRC / f"{n}.svg").exists() for n in ("corazon", "corazon-fill", "corazon-me-sumo", "corazon-causa")),
+        "4 glifos + sticker")
 
     # Máscaras knockout de la serie «Abrazo»
     for name in ("abrazo", "abrazo-me-sumo", "abrazo-causa", "abrazo-mutuo"):
@@ -299,10 +336,10 @@ def check_masters() -> None:
     for name in SVGS:
         b = svg_info(SRC / f"{name}.svg")["bbox"]
         inside = b[0] >= -0.01 and b[1] >= -0.01 and b[2] <= 32.01 and b[3] <= 32.01
-        if name in ("solidaridad-me-sumo", "abrazo-me-sumo"):
+        if name in ("solidaridad-me-sumo", "abrazo-me-sumo", "corazon-me-sumo"):
             add("Maestros SVG", "«Me sumo»: desborde solo del brazo (esperado)",
                 b[0] < 0 and b[2] <= 32.01, f"xmin={fmt(b[0])}")
-        elif name == "solidaridad-sticker":
+        elif name in ("solidaridad-sticker", "corazon-sticker"):
             add("Maestros SVG", "sticker: pose final dentro del viewBox", inside,
                 "(" + ", ".join(fmt(v) for v in b) + ")")
         else:
@@ -341,20 +378,29 @@ def check_exports() -> None:
     add(block, "serie «Abrazo» sin 16/20 (ahí se usa la serie original)",
         all(16 not in SIZES[g] and 20 not in SIZES[g] for g in ("abrazo", "abrazo-me-sumo", "abrazo-causa", "abrazo-mutuo")),
         "solo ≥ 24")
+    add(block, "serie «Corazón»: B 16/20 y A desde 24",
+        SIZES["corazon-fill"] == [16, 20] and min(SIZES["corazon"]) == 24
+        and min(SIZES["corazon-me-sumo"]) == 24 and min(SIZES["corazon-causa"]) == 24,
+        "B 16/20 · A 24–512")
     add(block, "set completo de tamaños por tinta", total == len(TINTS) * sum(len(v) for v in SIZES.values()),
         f"{total} PNG")
 
     # Sticker estático y animado
     for tint in TINTS:
-        for size in STICKER_SIZES:
-            p = DIST / "sticker" / tint / f"solidaridad-sticker_{size}.png"
-            add(block, f"sticker estático {tint} {size}px", p.exists() and Image.open(p).size == (size, size),
-                "ok" if p.exists() else "falta")
+        for sticker in ("solidaridad-sticker", "corazon-sticker"):
+            for size in STICKER_SIZES:
+                p = DIST / "sticker" / tint / f"{sticker}_{size}.png"
+                add(block, f"sticker estático {sticker} {tint} {size}px",
+                    p.exists() and Image.open(p).size == (size, size),
+                    "ok" if p.exists() else "falta")
     anim = DIST / "sticker" / "animado"
     for f, label in [
         (anim / "solidaridad-sticker-animado_512.webp", "WebP animado 512 (principal)"),
         (anim / "solidaridad-sticker-animado_512.gif", "GIF animado 512 (compatibilidad)"),
         (anim / "solidaridad-sticker-animado_256.webp", "WebP animado 256"),
+        (anim / "corazon-sticker-animado_512.webp", "Corazón: WebP animado 512"),
+        (anim / "corazon-sticker-animado_512.gif", "Corazón: GIF animado 512"),
+        (anim / "corazon-sticker-animado_256.webp", "Corazón: WebP animado 256"),
     ]:
         add(block, label, f.exists() and f.stat().st_size > 1000,
             f"{f.stat().st_size // 1024} KB" if f.exists() else "falta")
@@ -411,6 +457,9 @@ def write_report() -> int:
         "- La serie «Abrazo» usa una máscara knockout: el cuerpo derecho se recorta",
         "  alrededor del brazo y de la mano, dejando 1.2 u de transparencia. No agrega",
         "  un segundo color; el hueco toma el color del fondo.",
+        "- La serie «Corazón» coloca un corazón entre las cabezas; se lee como",
+        "  afecto/pareja además de apoyo, por eso es una serie aparte y no sustituye",
+        "  a la serie original.",
         "- Las comprobaciones de color y accesibilidad se hacen sobre los maestros",
         "  (`currentColor`, `role=\"img\"`, `aria-label`); las tintas viven en el build.",
         "",

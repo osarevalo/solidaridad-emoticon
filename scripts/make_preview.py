@@ -33,6 +33,14 @@ ABRAZO_GLYPHS = [
     ("abrazo-mutuo", "Abrazo mutuo", "abrazo-mutuo.svg", "los dos brazos por encima · ≥ 24 px"),
 ]
 
+CORAZON_GLYPHS = [
+    ("corazon", "Corazón · A", "corazon.svg", "trazo · 24–512 px"),
+    ("corazon-fill", "Corazón · B", "corazon-fill.svg", "silueta · 16 y 20 px"),
+    ("corazon-me-sumo", "Corazón · «me sumo»", "corazon-me-sumo.svg", "≥ 24 px"),
+    ("corazon-causa", "Corazón · «misma causa»", "corazon-causa.svg", "≥ 24 px"),
+    ("corazon-sticker", "Corazón · sticker", "corazon-sticker.svg", "animado · 512"),
+]
+
 INK = "#1F2933"
 TEAL = "#2B7A78"
 VIOLET = "#8E44AD"
@@ -72,7 +80,7 @@ def contact_sheet() -> Path:
 
     d.text((80, 54), "Solidaridad", font=font(56, True), fill=INK)
     d.text((80, 124), "Paquete de emoticones · apoyo y solidaridad", font=font(26), fill="#475467")
-    meta = "v1.2.0 · 9 glifos · 16–512 px · monocromo"
+    meta = "v1.3.0 · 14 glifos · 16–512 px · monocromo"
     d.text((W - 80 - d.textlength(meta, font=font(20)), 84), meta, font=font(20), fill="#667085")
     d.line((80, 186, W - 80, 186), fill="#E4E7EC", width=2)
 
@@ -131,7 +139,7 @@ def contact_sheet() -> Path:
     checks = checks_count()
     foot1 = f"Verificación geométrica: {checks} comprobaciones · 0 fallas  ·  docs/verificacion-geometrica.md"
     foot2 = f"Arte CC BY 4.0 · Código MIT  ·  github.com/osarevalo/solidaridad-emoticon  ·  {today}"
-    foot3 = "Serie alternativa «Abrazo»: preview/contact-sheet-abrazo.png  ·  solo ≥ 24 px"
+    foot3 = "Series alternativas: preview/contact-sheet-abrazo.png · preview/contact-sheet-corazon.png"
     d.text((80, 1250), foot1, font=font(16), fill="#98A2B3")
     d.text((80, 1276), foot2, font=font(16), fill="#98A2B3")
     d.text((80, 1302), foot3, font=font(15), fill="#98A2B3")
@@ -182,6 +190,48 @@ def abrazo_contact_sheet() -> Path:
     return path
 
 
+def corazon_contact_sheet() -> Path:
+    W, H = 1920, 1250
+    sheet = Image.new("RGBA", (W, H), "#FFFFFF")
+    d = ImageDraw.Draw(sheet)
+    d.text((80, 54), "Serie «Corazón»", font=font(52, True), fill=INK)
+    d.text((80, 122), "La serie original con un corazón entre las dos figuras", font=font(25), fill="#475467")
+    meta = "v1.3.0 · 5 glifos · 16–512 px"
+    d.text((W - 80 - d.textlength(meta, font=font(19)), 84), meta, font=font(19), fill="#667085")
+    d.line((80, 184, W - 80, 184), fill="#E4E7EC", width=2)
+    cards = [(80 + i * 365, 205, 80 + i * 365 + 345, 595) for i in range(5)]
+    for (x0, y0, x1, y1), (name, label, filename, sizes) in zip(cards, CORAZON_GLYPHS):
+        rounded(d, (x0, y0, x1, y1), 18, "#FFFFFF", "#E4E7EC", 2)
+        im = render(name, 240, INK)
+        paste_center(sheet, im, (x0 + x1) // 2, y0 + 130)
+        d.text((x0 + 20, y0 + 280), label, font=font(22, True), fill=INK)
+        d.text((x0 + 20, y0 + 312), filename, font=font(15), fill="#667085")
+        d.text((x0 + 20, y0 + 338), sizes, font=font(13), fill="#98A2B3")
+    d.text((80, 645), "Escala", font=font(30, True), fill=INK)
+    d.text((80, 685), "B (silueta) para 16 y 20 px; A (trazo) desde 24 px.", font=font(18), fill="#667085")
+    x = 120; baseline = 960
+    for name, size, letter in [("corazon", 256, "A"), ("corazon", 128, "A"), ("corazon", 96, "A"),
+                               ("corazon", 64, "A"), ("corazon", 48, "A"), ("corazon", 32, "A"),
+                               ("corazon", 24, "A"), ("corazon-fill", 20, "B"), ("corazon-fill", 16, "B")]:
+        im = render(name, size, INK)
+        sheet.alpha_composite(im, (x, baseline - size))
+        d.text((x + size / 2 - 12, baseline + 10), f"{size}", font=font(14), fill="#667085")
+        x += max(size, 70) + 38
+    rounded(d, (80, 1000, W - 80, 1110), 18, INK)
+    d.text((112, 1022), "Corazón en blanco / oscuro", font=font(20, True), fill="#FFFFFF")
+    sheet.alpha_composite(render("corazon", 80, "#FFFFFF"), (420, 1012))
+    sheet.alpha_composite(render("corazon-me-sumo", 80, "#FFFFFF"), (540, 1012))
+    d.text((650, 1020), "El corazón se lee como afecto o pareja; por eso es una serie aparte y no sustituye a «Hombro con hombro».", font=font(16), fill="#D0D5DD")
+    d.text((650, 1046), "Se mantiene la base: cabezas que no se tocan, hombros que sí.", font=font(16), fill="#D0D5DD")
+    checks = checks_count()
+    d.text((80, 1160), f"Verificación: {checks} comprobaciones · 0 fallas  ·  docs/verificacion-geometrica.md", font=font(15), fill="#98A2B3")
+    d.text((80, 1184), "Arte CC BY 4.0 · Código MIT  ·  github.com/osarevalo/solidaridad-emoticon", font=font(15), fill="#98A2B3")
+    OUT.mkdir(parents=True, exist_ok=True)
+    path = OUT / "contact-sheet-corazon.png"
+    sheet.convert("RGB").save(path, optimize=True)
+    return path
+
+
 def html() -> Path:
     def svg(name: str, size: int, css: str = "") -> str:
         raw = (SRC / f"{name}.svg").read_text(encoding="utf-8").strip()
@@ -189,6 +239,16 @@ def html() -> Path:
         return raw
 
     checks = checks_count()
+    corazon_cards = ""
+    for name, label, filename, sizes in CORAZON_GLYPHS:
+        corazon_cards += f"""
+        <article class="card">
+          <div class="glyph">{svg(name, 128)}</div>
+          <h3>{label}</h3>
+          <code>{filename}</code>
+          <p class="muted">{sizes}</p>
+        </article>"""
+
     abrazo_cards = ""
     for name, label, filename, sizes in ABRAZO_GLYPHS:
         abrazo_cards += f"""
@@ -300,9 +360,9 @@ def html() -> Path:
     <h1>Solidaridad</h1>
     <p class="lead">«Me solidarizo con vos» · apoyo y solidaridad, sin caridad desde arriba.</p>
     <div class="chips">
-      <span class="chip">9 glifos</span><span class="chip">SVG maestro 32 × 32</span>
+      <span class="chip">14 glifos</span><span class="chip">SVG maestro 32 × 32</span>
       <span class="chip">PNG 16–512 px</span><span class="chip">monocromo · currentColor</span>
-      <span class="chip">sticker animado</span><span class="chip">serie Abrazo</span><span class="chip">{checks} comprobaciones · 0 fallas</span>
+      <span class="chip">sticker animado</span><span class="chip">series Abrazo y Corazón</span><span class="chip">{checks} comprobaciones · 0 fallas</span>
       <span class="chip">arte CC BY 4.0</span><span class="chip">código MIT</span>
     </div>
   </header>
@@ -342,6 +402,14 @@ def html() -> Path:
     <div class="grid">{abrazo_cards}
     </div>
     <p class="sub" style="margin-top:14px">Hoja de contactos de la serie: <a href="contact-sheet-abrazo.png">contact-sheet-abrazo.png</a>.</p>
+  </section>
+
+  <section>
+    <h2>Serie «Corazón»</h2>
+    <p class="sub">La serie original con un corazón entre las dos figuras. Mantiene la base (cabezas que no se tocan, hombros que sí); el corazón se lee como afecto o pareja, por eso es una serie aparte.</p>
+    <div class="grid">{corazon_cards}
+    </div>
+    <p class="sub" style="margin-top:14px">Serie completa (A, B y sticker): <a href="contact-sheet-corazon.png">contact-sheet-corazon.png</a>.</p>
   </section>
 
   <section>
@@ -410,7 +478,7 @@ def html() -> Path:
   </section>
 
   <footer>
-    <p><strong>Solidaridad v1.2.0</strong> · paquete generado el {dt.date.today().isoformat()} ·
+    <p><strong>Solidaridad v1.3.0</strong> · paquete generado el {dt.date.today().isoformat()} ·
     <span class="ok">{checks} comprobaciones PASA · 0 FALLA</span></p>
     <p>Contenido: <code>src/</code> (maestros), <code>dist/png/</code> (4 tintas), <code>dist/sticker/</code>,
     <code>docs/</code>, <code>preview/</code>. Léase también <code>DOCUMENTO-MAESTRO.md</code> y <code>README.md</code>.</p>
@@ -431,9 +499,11 @@ def html() -> Path:
 def main() -> int:
     sheet = contact_sheet()
     abrazo_sheet = abrazo_contact_sheet()
+    corazon_sheet = corazon_contact_sheet()
     page = html()
     print(f"OK: {sheet.relative_to(ROOT)}")
     print(f"OK: {abrazo_sheet.relative_to(ROOT)}")
+    print(f"OK: {corazon_sheet.relative_to(ROOT)}")
     print(f"OK: {page.relative_to(ROOT)}")
     return 0
 

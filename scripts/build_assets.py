@@ -40,14 +40,21 @@ SIZES = {
     "abrazo-me-sumo": [24, 32, 48, 64, 128, 256, 512],
     "abrazo-causa": [24, 32, 48, 64, 128, 256, 512],
     "abrazo-mutuo": [24, 32, 48, 64, 128, 256, 512],
+    # Serie «Corazón»: serie original con un corazón entre las figuras.
+    "corazon": [24, 32, 48, 64, 128, 256, 512],
+    "corazon-fill": [16, 20],
+    "corazon-me-sumo": [24, 32, 48, 64, 128, 256, 512],
+    "corazon-causa": [24, 32, 48, 64, 128, 256, 512],
 }
 
-# El sticker se exporta como pose final (sin SMIL) en PNG y WebP.
+# Los stickers se exportan como pose final (sin SMIL) en PNG y WebP.
+STICKERS = ["solidaridad-sticker", "corazon-sticker"]
 STICKER_SIZES = [128, 256, 512]
 
 
 def strip_animation(svg: str) -> str:
     svg = re.sub(r"<animateTransform[^>]*/>", "", svg)
+    svg = re.sub(r"<animate [^>]*/>", "", svg)
     svg = re.sub(r"\s+", " ", svg)
     return svg
 
@@ -91,16 +98,17 @@ def main() -> int:
                 check_png(out, size)
                 generated += 1
 
-        # Sticker estático (pose final) por tinta
-        sticker = strip_animation((SRC / "solidaridad-sticker.svg").read_text(encoding="utf-8"))
-        for size in STICKER_SIZES:
-            out = DIST / "sticker" / tint / f"solidaridad-sticker_{size}.png"
-            render_svg(sticker, size, out, color)
-            check_png(out, size)
-            generated += 1
+        # Stickers estáticos (pose final) por tinta
+        for sticker_name in STICKERS:
+            sticker = strip_animation((SRC / f"{sticker_name}.svg").read_text(encoding="utf-8"))
+            for size in STICKER_SIZES:
+                out = DIST / "sticker" / tint / f"{sticker_name}_{size}.png"
+                render_svg(sticker, size, out, color)
+                check_png(out, size)
+                generated += 1
 
     # Verificar que los SVG fuente existen y que el set de tamaños cubre lo esperado
-    for glyph in list(SIZES) + ["solidaridad-sticker"]:
+    for glyph in list(SIZES) + STICKERS:
         if not (SRC / f"{glyph}.svg").exists():
             print(f"FALTA: src/{glyph}.svg", file=sys.stderr)
             missing += 1

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: MIT
-"""Genera el sticker animado de «Solidaridad».
+"""Genera los stickers animados de «Solidaridad» y «Corazón».
 
 Reproduce en Python la animación SMIL del maestro (translate + spline) para
 poder exportar frame a frame: WebP animado (formato recomendado, con alfa) y
@@ -31,6 +31,8 @@ KEY = 0.75 * DUR    # 0.4125 s: fin del primer tramo
 HOLD_OFF = 3        # frames quieto fuera de cuadro
 HOLD_END = 10       # frames quieto en la pose final
 SIZES = [256, 512]
+HEART_BEGIN = 0.35
+HEART_DUR = 0.4
 
 TPL = """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none"
      role="img" aria-label="Me solidarizo con vos">
@@ -73,21 +75,67 @@ def translate_at(t: float) -> float:
     return 0.6 - 0.6 * e
 
 
-def extract_figures() -> tuple[str, str]:
+def extract_figures(sticker: str = "solidaridad-sticker") -> tuple[str, str]:
     """Extrae los dos bloques (path + circle) del maestro del sticker."""
-    svg = (SRC / "solidaridad-sticker.svg").read_text(encoding="utf-8")
+    svg = (SRC / f"{sticker}.svg").read_text(encoding="utf-8")
     paths = re.findall(r"<path d=\"([^\"]+)\"/>", svg)
     circles = re.findall(r"<circle [^>]+/>", svg)
-    if len(paths) != 2 or len(circles) != 2:
-        raise SystemExit("el maestro del sticker no tiene 2 figuras")
+    if len(paths) < 2 or len(circles) != 2:
+        raise SystemExit(f"el maestro {sticker} no tiene 2 figuras")
     left = f'<path d="{paths[0]}"/>{circles[0]}'.replace("currentColor", TINT)
     right = f'<path d="{paths[1]}"/>{circles[1]}'.replace("currentColor", TINT)
     return left, right
 
 
+def extract_corazon() -> tuple[str, str, str]:
+    """Extrae figuras y corazón del sticker con corazón."""
+    svg = (SRC / "corazon-sticker.svg").read_text(encoding="utf-8")
+    paths = re.findall(r'<path d="([^"]+)"[^>]*/>', svg)
+    circles = re.findall(r"<circle [^>]+/>", svg)
+    if len(paths) != 3 or len(circles) != 2:
+        raise SystemExit("el maestro corazon-sticker no tiene 2 figuras + corazón")
+    left = f'<path d="{paths[0]}"/>{circles[0]}'.replace("currentColor", TINT)
+    right = f'<path d="{paths[1]}"/>{circles[1]}'.replace("currentColor", TINT)
+    return left, right, paths[2]
+
+
+def heart_state(t: float) -> tuple[float, float]:
+    """Escala y opacidad del corazón en el tiempo t (s)."""
+    if t < HEART_BEGIN:
+        return 0.0, 0.0
+    u = min(1.0, (t - HEART_BEGIN) / HEART_DUR)
+    if u <= 0.75:
+        e = bezier_y_at_x(0.16, 1, 0.3, 1, u / 0.75)
+        scale = 1.2 * e
+    else:
+        e = bezier_y_at_x(0.4, 0, 0.2, 1, (u - 0.75) / 0.25)
+        scale = 1.2 + (1.0 - 1.2) * e
+    return scale, min(1.0, u / 0.2)
+
+
+CORAZON_TPL = """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none"
+     role="img" aria-label="Solidaridad con corazón">
+  <g stroke="{tint}" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+    <g transform="translate({lx:.4f} 0)">{left}</g>
+    <g transform="translate({rx:.4f} 0)">{right}</g>
+  </g>
+  <g transform="translate(16 11.4) scale({hs:.4f})">
+    <path d="{heart}" fill="{tint}" opacity="{op:.3f}"/>
+  </g>
+</svg>
+"""
+
+
 def frame_svg(left: str, right: str, t: float) -> str:
     tx = translate_at(t)
     return TPL.format(tint=TINT, lx=tx, rx=-tx, left=left, right=right)
+
+
+def frame_corazon_svg(left: str, right: str, heart: str, t: float) -> str:
+    tx = translate_at(t)
+    hs, op = heart_state(t)
+    return CORAZON_TPL.format(tint=TINT, lx=tx, rx=-tx, left=left, right=right,
+                              heart=heart, hs=hs, op=op)
 
 
 def render_frames(size: int, outdir: Path) -> list[Path]:
@@ -99,6 +147,26 @@ def render_frames(size: int, outdir: Path) -> list[Path]:
     for i, t in enumerate(times):
         svg = frame_svg(left, right, t)
         out = outdir / f"frame-{size}-{i:03d}.png"
+        cairosvg.svg2png(
+            bytestring=svg.encode("utf-8"),
+            write_to=str(out),
+            output_width=size,
+            output_height=size,
+            background_color=None,
+        )
+        frames.append(out)
+    return frames
+
+
+def render_corazon_frames(size: int, outdir: Path) -> list[Path]:
+    left, right, heart = extract_corazon()
+    times: list[float] = [0.0] * HOLD_OFF
+    times += [min(DUR, i / FPS) for i in range(0, int(round(DUR * FPS)) + 1)]
+    times += [DUR] * HOLD_END
+    frames: list[Path] = []
+    for i, t in enumerate(times):
+        svg = frame_corazon_svg(left, right, heart, t)
+        out = outdir / f"frame-cor-{size}-{i:03d}.png"
         cairosvg.svg2png(
             bytestring=svg.encode("utf-8"),
             write_to=str(out),
@@ -152,7 +220,7 @@ def encode_gif(frames: list[Path], out: Path) -> None:
 
 def static_webp() -> int:
     count = 0
-    for png in sorted((DIST / "sticker").rglob("solidaridad-sticker_*.png")):
+    for png in sorted((DIST / "sticker").rglob("*-sticker_*.png")):
         out = png.with_suffix(".webp")
         Image.open(png).save(out, format="WEBP", lossless=True, quality=100)
         count += 1
@@ -164,13 +232,17 @@ def main() -> int:
     anim.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory() as tmp:
         tmpdir = Path(tmp)
-        for size in SIZES:
-            frames = render_frames(size, tmpdir)
-            webp = anim / f"solidaridad-sticker-animado_{size}.webp"
-            encode_webp_anim(frames, webp)
-            if size == 512:
-                encode_gif(frames, anim / "solidaridad-sticker-animado_512.gif")
-            print(f"OK animado {size}px: {webp.name} ({len(frames)} frames)")
+        for sticker, renderer in (
+            ("solidaridad", render_frames),
+            ("corazon", render_corazon_frames),
+        ):
+            for size in SIZES:
+                frames = renderer(size, tmpdir)
+                webp = anim / f"{sticker}-sticker-animado_{size}.webp"
+                encode_webp_anim(frames, webp)
+                if size == 512:
+                    encode_gif(frames, anim / f"{sticker}-sticker-animado_512.gif")
+                print(f"OK animado {sticker} {size}px: {webp.name} ({len(frames)} frames)")
     n = static_webp()
     print(f"OK: {n} WebP estáticos")
     return 0
